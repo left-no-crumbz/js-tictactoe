@@ -11,6 +11,7 @@
 
 * {
     margin: 0;
+    padding: 0;
 }
 
 body {
@@ -19,7 +20,7 @@ body {
     font-family: "Red Hat Display", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     background-color: var(--navy);
     min-height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 img, picture, video, canvas, svg {
@@ -61,10 +62,13 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 .symbol-selector-container {    
+    padding-inline: 2rem;
     gap: 2rem;
     width: 100%;
     max-width: 600px;
+
     h1 {
+        text-align: center;
         color: var(--sky-blue);
         font-size: 2.5rem;
     }
@@ -80,11 +84,13 @@ p, h1, h2, h3, h4, h5, h6 {
     
     .symbol-selector::before,
     .symbol-selector::after {
-        place-self: center;
+        justify-content: center;
+        align-items: center;
         text-transform: uppercase;
         font-size: 1rem;
         font-weight: 700;
         color: var(--navy);
+        text-align: center;
     }
     
     .symbol-selector::before {
@@ -107,7 +113,7 @@ p, h1, h2, h3, h4, h5, h6 {
         border-radius: .75rem;
         width: 100%;
         height: min(100%, 120px);
-        font-size: 5rem;
+        font-size: 4rem;
         font-weight: 700;
         color: var(--beige);
     }
