@@ -1,0 +1,99 @@
+:root {
+    --navy: #2D3E54;
+    --teal: #547788;
+    --sky-blue: #BFD0DC;
+    --beige: #EAE6E2;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+* {
+    margin: 0;
+}
+
+body {
+    position: relative;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+}
+
+input, button, textarea, select {
+    font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+}
+
+body {
+    place-items: center;
+    background-color: var(--navy);
+    min-height: 100vh;
+}
+
+.grid {
+    display: grid;
+}
+
+.flex {
+    display: flex;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.disabled {
+    display: none !important;
+}
+
+.symbol-selector {
+    gap: 1rem;
+    padding: 1.5rem 1rem;
+    border-radius: 2.75rem;
+    background-color: var(--sky-blue);
+    min-width: 300px;
+}
+
+.symbol-selector::before {
+    place-self: center;
+    content: "Please pick Player 1's symbol";
+    text-transform: uppercase;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--navy);
+}
+
+.symbols-container {
+    padding: 1rem;
+    border-radius: 1.75rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    background-color: var(--navy);
+}
+
+.symbol {
+    border-radius: .75rem;
+    width: 100px;
+    height: 100px;
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--beige);
+}
+
+.symbol:hover {
+    background-color: var(--beige);
+    color: var(--navy);
+}
