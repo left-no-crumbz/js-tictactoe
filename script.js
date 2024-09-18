@@ -2,17 +2,26 @@
 // TODO: Fix first attacker
 //       - Right now, the player attacks first regardless of their symbol.
 //       - Ideally, the X symbol player should attack first.
+// TODO: Add symbol is shown when hovering on the buttons
+
 function GameBoardController() {
     const boardArr = ['', '', '', '', '', '', '', '', ''];
     
     const getBoard = () => boardArr;
 
-    const createGameBoard = (board) => {
+    const createGameBoard = (board, symbol) => {
         const boardLength = boardArr.length;
         for (let index = 0; index < boardLength; index++) {
             const cell = document.createElement("button");
+            const symbolText = document.createElement("p");
+            symbolText.textContent = symbol;
+
+            symbolText.classList.toggle("symbol-text");
+            symbolText.style.display = "none";
+
             cell.setAttribute("data-index", index);
             cell.classList.toggle("cell");
+            cell.appendChild(symbolText);
             board.appendChild(cell);
         }
     }
@@ -51,6 +60,7 @@ function GameBoardController() {
         for (let index = 0; index < boardArr.length; index++) {
             boardArr[index] = ''; 
         }
+        console.log(boardArr);
     }
     return {createGameBoard, placeSymbolInArr, getBoard, checkIfOccupied, checkWinConditions, clearBoard};
 }
@@ -72,6 +82,9 @@ function displayController(debug = false) {
     const playerOne = createPlayer();
     const playerTwo = createPlayer();
     const gameBoard = GameBoardController();
+    let humanWin;
+    let computerWin;
+
     let turns = 0
 
     function initPlayerSymbol(event) {
@@ -79,9 +92,11 @@ function displayController(debug = false) {
         if (event.target.classList.contains("symbols-container")) {
             return
         }
+
         playerOne.setPlayerSymbol(event.target.getAttribute("data-symbol"));
         playerTwo.setPlayerSymbol(playerOne.getPlayerSymbol() === "X" ? "O" : "X");
-        gameBoard.createGameBoard(board);
+        
+        gameBoard.createGameBoard(board, playerOne.getPlayerSymbol());
 
         //  remove the toggle selector
         selector.classList.toggle("disabled");
@@ -94,6 +109,8 @@ function displayController(debug = false) {
             console.log(`Player Two's Symbol is ${playerTwo.getPlayerSymbol()}`);
         }
     }
+
+
 
     function placeSymbolOpponent(symbol) {
         let index = 0;
@@ -124,9 +141,8 @@ function displayController(debug = false) {
             placeSymbolOpponent(computerSymbol);
             
 
-            const humanWin = gameBoard.checkWinConditions(humanSymbol);
-            const computerWin = gameBoard.checkWinConditions(computerSymbol);
-
+            humanWin = gameBoard.checkWinConditions(humanSymbol);
+            computerWin = gameBoard.checkWinConditions(computerSymbol);
 
             console.log(`Human win ${humanWin}`);
             console.log(`Computer win ${computerWin}`);
@@ -134,11 +150,9 @@ function displayController(debug = false) {
             if (turns >= 3){
                 if (humanWin) {
                     console.log("human win");
-                    sleep
                     gameBoard.clearBoard();
                 } else if (computerWin) {
                     console.log("computer win");
-                    setTimeout(3000);
                     gameBoard.clearBoard();
                 } else {
                     console.log("draw!");
@@ -148,14 +162,20 @@ function displayController(debug = false) {
 
         }
 
-        updateScreen();
+        updateScreen(humanWin, computerWin);
     }
-
-    function updateScreen() {
+    function updateScreen(humanWin, computerWin) {
         const board = gameBoard.getBoard();
-        const cells = Array.from(document.querySelectorAll(".cell"));
+        const symbolText = Array.from(document.querySelectorAll(".symbol-text"));
         for (let index = 0; index < board.length; index++) {
-            cells[index].textContent = board[index];
+            if (board[index] === '') {
+                if (humanWin || computerWin) {
+                    symbolText[index].textContent = board[index];
+                }
+            } else {
+                symbolText[index].textContent = board[index];
+                symbolText[index].style.display = "block";
+            }
         }
     }
 

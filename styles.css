@@ -145,3 +145,18 @@ p, h1, h2, h3, h4, h5, h6 {
     grid-template-rows: repeat(3, 1fr);
     grid-template-columns: repeat(3, 1fr);
 }
+
+.cell {
+    font-size: 4rem;
+    font-weight: 700;
+}
+
+.cell:hover .symbol-text{
+    display: block !important;
+    font-size: 4rem;
+    font-weight: 700;
+}
+
+.results {
+    
+}
