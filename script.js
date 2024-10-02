@@ -20,6 +20,8 @@ function GameBoardController() {
             symbolText.style.display = "none";
 
             cell.setAttribute("data-index", index);
+            symbolText.setAttribute("data-index", index);
+
             cell.classList.toggle("cell");
             cell.appendChild(symbolText);
             board.appendChild(cell);
@@ -53,16 +55,21 @@ function GameBoardController() {
                 break;
             }
         }
-        return leftDiagonal || rightDiagonal || horizontal || vertical;
+        const win = leftDiagonal || rightDiagonal || horizontal || vertical
+        return win;
     }
 
+    const checkDrawCondition = () => {
+        // will return true to draw if all cells are filled
+        return boardArr.filter((element) => element !== '').length === 9;
+    }
     const clearBoard = () => {
         for (let index = 0; index < boardArr.length; index++) {
             boardArr[index] = ''; 
         }
         console.log(boardArr);
     }
-    return {createGameBoard, placeSymbolInArr, getBoard, checkIfOccupied, checkWinConditions, clearBoard};
+    return {createGameBoard, placeSymbolInArr, getBoard, checkIfOccupied, checkWinConditions, clearBoard, checkDrawCondition};
 }
 
 function createPlayer() {
@@ -84,8 +91,10 @@ function displayController(debug = false) {
     const gameBoard = GameBoardController();
     let humanWin;
     let computerWin;
-
+    let draw = false;
+    let isWinnerPresent = false;
     let turns = 0
+    const results = document.querySelector(".results");
 
     function initPlayerSymbol(event) {
         // prevents symbol to be null
@@ -118,6 +127,14 @@ function displayController(debug = false) {
         // generate index if it is already occupied
         do {
             index = Math.floor(Math.random() * 9);
+            console.log(draw);
+
+            draw = gameBoard.checkDrawCondition();
+            console.log(draw);
+            
+            if(draw) {
+                break;
+            }
         } while (gameBoard.checkIfOccupied(index));
 
         gameBoard.placeSymbolInArr(index, symbol);
@@ -141,36 +158,58 @@ function displayController(debug = false) {
             placeSymbolOpponent(computerSymbol);
             
 
-            humanWin = gameBoard.checkWinConditions(humanSymbol);
-            computerWin = gameBoard.checkWinConditions(computerSymbol);
-
-            console.log(`Human win ${humanWin}`);
-            console.log(`Computer win ${computerWin}`);
-
-            if (turns >= 3){
-                if (humanWin) {
-                    console.log("human win");
-                    gameBoard.clearBoard();
-                } else if (computerWin) {
-                    console.log("computer win");
-                    gameBoard.clearBoard();
-                } else {
-                    console.log("draw!");
-                }
-            } 
-            
+            draw = gameBoard.checkDrawCondition();
+            console.log(draw);
+            setTimeout(() => {
+                isWinnerPresent = displayWinner(humanSymbol, computerSymbol);
+            }, 1000)
 
         }
+        updateScreen(isWinnerPresent, draw);
 
-        updateScreen(humanWin, computerWin);
     }
-    function updateScreen(humanWin, computerWin) {
+
+    function displayWinner(humanSymbol, computerSymbol) {
+        const resultText = document.querySelector(".results p");
+        const clearBtn = document.querySelector(".results button");
+
+        humanWin = gameBoard.checkWinConditions(humanSymbol);
+        computerWin = gameBoard.checkWinConditions(computerSymbol);
+
+        console.log(`Human win ${humanWin}`);
+        console.log(`Computer win ${computerWin}`);
+
+        if (turns >= 3){
+            if (humanWin) {
+                resultText.textContent = "Human won!"
+                results.classList.remove("disabled");
+            } else if (computerWin) {
+                resultText.textContent = "Computer won!"
+                results.classList.remove("disabled");
+            } else if (draw) {
+                resultText.textContent = "Draw!"
+                results.classList.remove("disabled");
+            }
+
+            clearBtn.addEventListener("mousedown", (event) => {
+                gameBoard.clearBoard();
+                results.classList.add("disabled");
+                updateScreen(isWinnerPresent, draw);
+            });
+        }
+        return (humanWin || computerWin);
+    }
+
+    function updateScreen(winner, draw) {
+        // results.classList.add("disabled");
+        console.log(`Winner: ${winner}`)
         const board = gameBoard.getBoard();
         const symbolText = Array.from(document.querySelectorAll(".symbol-text"));
         for (let index = 0; index < board.length; index++) {
             if (board[index] === '') {
-                if (humanWin || computerWin) {
-                    symbolText[index].textContent = board[index];
+                if (winner || draw) {
+                    symbolText[index].textContent = playerOne.getPlayerSymbol();
+                    symbolText[index].style.display = "none"
                 }
             } else {
                 symbolText[index].textContent = board[index];
