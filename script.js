@@ -82,7 +82,7 @@ function createPlayer() {
 }
 
 
-function displayController(debug = false) {
+const displayController = function displayController(debug = false) {
     const symbolsContainer = document.querySelector(".symbols-container");
     const selector = document.querySelector(".symbol-selector-container");
     const board = document.querySelector(".board");
@@ -147,7 +147,7 @@ function displayController(debug = false) {
         const humanSymbol = playerOne.getPlayerSymbol();
         const computerSymbol = playerTwo.getPlayerSymbol();
 
-        if (gameBoard.checkIfOccupied(index)) {
+        if (gameBoard.checkIfOccupied(index) || isWinnerPresent) {
             console.log("placeSymbol: Cell is occupied")
         } else {
             turns++;
@@ -172,13 +172,14 @@ function displayController(debug = false) {
     function displayWinner(humanSymbol, computerSymbol) {
         const resultText = document.querySelector(".results p");
         const clearBtn = document.querySelector(".results button");
-
+        const cells = document.querySelectorAll(".cells");
         humanWin = gameBoard.checkWinConditions(humanSymbol);
         computerWin = gameBoard.checkWinConditions(computerSymbol);
 
         console.log(`Human win ${humanWin}`);
         console.log(`Computer win ${computerWin}`);
 
+        // BUG: You can still place moves after winning
         if (turns >= 3){
             if (humanWin) {
                 resultText.textContent = "Human won!"
@@ -191,20 +192,23 @@ function displayController(debug = false) {
                 results.classList.remove("disabled");
             }
 
+            Array.from(cells).forEach(cell => cell.disabled = true);
+
             clearBtn.addEventListener("mousedown", (event) => {
                 gameBoard.clearBoard();
                 results.classList.add("disabled");
                 updateScreen(isWinnerPresent, draw);
+                isWinnerPresent = false;
             });
         }
         return (humanWin || computerWin);
     }
 
     function updateScreen(winner, draw) {
-        // results.classList.add("disabled");
         console.log(`Winner: ${winner}`)
         const board = gameBoard.getBoard();
         const symbolText = Array.from(document.querySelectorAll(".symbol-text"));
+
         for (let index = 0; index < board.length; index++) {
             if (board[index] === '') {
                 if (winner || draw) {
@@ -220,6 +224,4 @@ function displayController(debug = false) {
 
     board.addEventListener("mousedown", placeSymbol);
 
-}
-
-displayController();
+}();
