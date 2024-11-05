@@ -102,3 +102,127 @@ class AIPlayer {
     }
 }
 
+class UIController {
+    constructor(gameLogic, aiPlayer) {
+        this.gameLogic = gameLogic;
+        this.aiPlayer = aiPlayer;
+        this.board = document.querySelector('.board');
+        this.symbolSelector = document.querySelector('.symbol-selector-container');
+        this.results = document.querySelector(".results");
+
+        this.playerSymbol = null;
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        document.querySelector(".symbols-container").addEventListener("mousedown", (event) => this.handleSymbolSelection(event));
+
+        this.board.addEventListener("mousedown", (event) => this.handleCellClick(event));
+
+        document.querySelector(".results button")?.addEventListener("mousedown", () => this.handleGameReset());
+        
+    }
+
+    handleSymbolSelection(event) {
+        if (!event.target.hasAttribute("data-symbol")) return;
+
+        this.playerSymbol = event.target.getAttribute("data-symbol");
+
+        this.aiPlayer.symbol = this.playerSymbol === "X" ? "O" : "X";
+
+        this.symbolSelector.classList.add("disabled");
+
+        this.board.classList.remove("disabled");
+
+        this.createGameBoard();
+
+        if (this.playerSymbol === "O") {
+            this.handleAITurn();
+        }
+    }
+
+    createGameBoard() {
+        this.board.innerHTML = "";
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement("button");
+            const symbolText = document.createElement("p");
+
+            cell.setAttribute("data-index", i);
+            symbolText.setAttribute("data-index", i);
+
+            cell.classList.add("cell");
+            symbolText.classList.add("symbol-text");
+
+            symbolText.style.display = "none";
+
+            cell.appendChild(symbolText);
+            this.board.appendChild(cell);
+        }
+    }
+
+    async handleCellClick(event) {
+        const cell = event.target.closest(".cell");
+
+        if (!cell) return;
+
+        const index = Number.parseInt(cell.getAttribute("data-index"));
+
+        if (this.gameLogic.makeMove(index, this.playerSymbol)) {
+            this.updateBoard();
+            this.gameLogic.updateGameStatus(this.playerSymbol);
+
+            if (!this.gameLogic.state.isGameOver) {
+                await this.handleAITurn();
+            }
+
+            this.checkGameEnd();
+        }
+
+    }
+
+    async handleAITurn() {
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const aiMove = this.aiPlayer.makeMove();
+
+        if (aiMove !== null) {
+            this.gameLogic.makeMove(aiMove, this.aiPlayer.symbol);
+            this.updateBoard();
+            this.gameLogic.updateGameStatus(this.aiPlayer.symbol);
+        }
+    }
+
+    updateBoard() {
+        const symbolTexts = document.querySelectorAll(".symbol-text");
+        
+        this.gameLogic.state.board.forEach((symbol, index) => {
+            const symbolText = symbolTexts[index];
+            symbolText.textContent = symbol;
+            symbolText.style.display = symbol ? "block" : "none";
+        });
+    }
+
+    checkGameEnd() {
+        if (!this.gameLogic.state.isGameOver) return;
+
+        const resultText = document.querySelector(".results p");
+
+        if (this.gameLogic.state.winner) {
+            const winnerText = this.gameLogic.state.winner === this.playerSymbol ? "You Won!" : "Computer Won!";
+
+            resultText.textContent = winnerText;
+        } else if (this.gameLogic.state.isDraw) {
+            resultText.textContent = "Draw!";
+        }
+    }
+
+    handleGameReset() {
+        this.gameLogic.state.reset();
+        this.results.classList.add("disabled");
+        this.updateBoard();
+
+        if (this.playerSymbol === "O") {
+            this.handleAITurn();
+        }
+    }
+}
