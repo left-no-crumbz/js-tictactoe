@@ -18,6 +18,7 @@ class GameState {
 class GameLogic {
     constructor(gameState) {
         this.state = gameState;
+        this.winningPattern = null;
     }
 
     isValidMove(index) {
@@ -35,6 +36,7 @@ class GameLogic {
         const leftDiagonal = this.state.board[0] === symbol && this.state.board[4] === symbol && this.state.board[8] === symbol;
         
         if (leftDiagonal) {
+            this.winningPattern = [0, 4, 8];
             return true;
         }
 
@@ -42,6 +44,7 @@ class GameLogic {
         const rightDiagonal = this.state.board[2] === symbol && this.state.board[4] === symbol && this.state.board[6] === symbol;
         
         if (rightDiagonal) {
+            this.winningPattern = [2, 4, 6];
             return true;
         }
 
@@ -53,16 +56,21 @@ class GameLogic {
             // check the horizontal
             horizontal = this.state.board[idx] === symbol && this.state.board[idx + 1] === symbol && this.state.board[idx + 2] === symbol;
             
+            if (horizontal) {
+                this.winningPattern = [idx, idx + 1, idx + 2];
+                return true;
+            }
+
             // check the vertical
             vertical = this.state.board[index] === symbol && this.state.board[index + 3] === symbol && this.state.board[index + 6] === symbol;
             
-            // break out of the loop if a winning pattern is matched
-            if (horizontal || vertical) {
+            if (vertical) {
+                this.winningPattern = [index, index + 3, index + 6];
                 return true;                
             }
         }
 
-        return leftDiagonal || rightDiagonal || horizontal || vertical;
+        return false;
     }
 
     checkDraw() {
@@ -88,7 +96,7 @@ class AIPlayer {
         this.symbol = symbol;
     }
 
-    makeMove() {
+    aiMakeMove() {
         const board = this.gameLogic.state.board;
         const availableMoves = board.reduce((moves, cell, index) => {
             if (cell === "") moves.push(index);
@@ -109,7 +117,7 @@ class UIController {
         this.board = document.querySelector(".board");
         this.symbolSelector = document.querySelector(".symbol-selector-container");
         this.results = document.querySelector(".results");
-
+        this.cells = null;
         this.playerSymbol = null;
         this.setupEventListeners();
     }
@@ -136,6 +144,7 @@ class UIController {
 
         this.createGameBoard();
 
+        this.cells = Array.from(document.querySelectorAll(".cell"))
         if (this.playerSymbol === "O") {
             this.handleAITurn();
         }
@@ -157,6 +166,17 @@ class UIController {
 
             cell.appendChild(symbolText);
             this.board.appendChild(cell);
+        }
+    }
+
+    
+    highlightWinningPattern() {
+        const winningPattern = this.gameLogic.winningPattern;
+
+        if (winningPattern) {
+            for (const index of winningPattern) {
+                this.cells[index].classList.add("winner");
+            }
         }
     }
 
@@ -183,7 +203,7 @@ class UIController {
     async handleAITurn() {
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        const aiMove = this.aiPlayer.makeMove();
+        const aiMove = this.aiPlayer.aiMakeMove();
 
         if (aiMove !== null) {
             this.gameLogic.makeMove(aiMove, this.aiPlayer.symbol);
@@ -202,6 +222,7 @@ class UIController {
         });
     }
 
+
     checkGameEnd() {
         console.log("Check game end");
 
@@ -212,18 +233,31 @@ class UIController {
         if (this.gameLogic.state.winner) {
             const winnerText = this.gameLogic.state.winner === this.playerSymbol ? "You Won!" : "Computer Won!";
             
-            this.results.classList.remove("disabled");
+            setTimeout(() => this.results.classList.remove("disabled"), 2000);
+            
+            this.highlightWinningPattern();
 
             resultText.textContent = winnerText;
 
         } else if (this.gameLogic.state.isDraw) {
-            this.results.classList.remove("disabled");
+            setTimeout(() => this.results.classList.remove("disabled"), 2000);
+
             resultText.textContent = "Draw!";
         }
     }
 
     handleGameReset() {
         this.gameLogic.state.reset();
+
+        const winningPattern = this.gameLogic.winningPattern;
+
+        console.log(winningPattern);
+
+
+        for (const index of winningPattern) {
+            this.cells[index].classList.remove("winner");
+        }
+
         this.results.classList.add("disabled");
         this.updateBoard();
 

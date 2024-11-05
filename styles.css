@@ -32,6 +32,12 @@ input, button, textarea, select {
     font: inherit;
 }
 
+button {
+    box-shadow: none;
+    font: inherit;
+    cursor: pointer;
+}
+
 p, h1, h2, h3, h4, h5, h6 {
     overflow-wrap: break-word;
 }
@@ -144,17 +150,61 @@ p, h1, h2, h3, h4, h5, h6 {
     height: 600px;
     grid-template-rows: repeat(3, 1fr);
     grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 10px;
+    background-color: var(--teal);
+    border-radius: 1rem;
 }
 
 .cell {
     font-size: 4rem;
     font-weight: 700;
+    background-color: var(--navy);
+    border: 2px solid var(--sky-blue);
+    border-radius: 0.5rem;
+    color: var(--beige);
+    position: relative;
+    transition: all 0.3s ease-in-out;
 }
 
-.cell:hover .symbol-text{
-    display: block !important;
-    font-size: 4rem;
-    font-weight: 700;
+.cell:hover {
+    background-color: var(--teal);
+    border-color: var(--beige);
+}
+
+@keyframes highlightWinner {
+    0% {
+        border-color: var(--sky-blue);
+        border-width: 2px;
+        background-color: var(--navy);
+    }
+    100% {
+        border-color: #4CAF50;
+        border-width: 4px;
+        background-color: rgba(76, 175, 80, 0.1);
+    }
+}
+
+.cell.winner {
+    animation: highlightWinner 0.5s ease-in-out forwards;
+}
+
+@keyframes winnerPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.cell.winner {
+    animation: 
+        highlightWinner 0.5s ease-in-out forwards,
+        winnerPulse 1s ease-in-out infinite;
 }
 
 .results {
@@ -163,17 +213,22 @@ p, h1, h2, h3, h4, h5, h6 {
     z-index: 1;
     width: 100%;
     height: 300px;
-    font-size: 2rem;
     padding-inline: 3rem;
     justify-content: space-evenly;
 
     button {
         padding: .5em 2em;
+        font-size: 1.5rem;
         border: 0;
         border-radius: .75rem;
         color: var(--beige);
         background-color: var(--navy);
         cursor: pointer;
+    }
+
+    p {
+        font-size: 3.5rem;
+        font-weight: 700;
     }
 }
 
