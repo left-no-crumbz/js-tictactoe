@@ -32,14 +32,14 @@ class GameLogic {
 
     checkWin(symbol) {
         // check the left diagonal
-        const leftDiagonal = board[0] === symbol && board[4] === symbol && board[8] === symbol;
+        const leftDiagonal = this.state.board[0] === symbol && this.state.board[4] === symbol && this.state.board[8] === symbol;
         
         if (leftDiagonal) {
             return true;
         }
 
         // check the right diagonal
-        const rightDiagonal = board[2] === symbol && board[4] === symbol && board[6] === symbol;
+        const rightDiagonal = this.state.board[2] === symbol && this.state.board[4] === symbol && this.state.board[6] === symbol;
         
         if (rightDiagonal) {
             return true;
@@ -51,10 +51,10 @@ class GameLogic {
         for (let index = 0; index < 3; index++) {
             const idx = index * 3;
             // check the horizontal
-            horizontal = board[idx] === symbol && board[idx + 1] === symbol && board[idx + 2] === symbol;
+            horizontal = this.state.board[idx] === symbol && this.state.board[idx + 1] === symbol && this.state.board[idx + 2] === symbol;
             
             // check the vertical
-            vertical = board[index] === symbol && board[index + 3] === symbol && board[index + 6] === symbol;
+            vertical = this.state.board[index] === symbol && this.state.board[index + 3] === symbol && this.state.board[index + 6] === symbol;
             
             // break out of the loop if a winning pattern is matched
             if (horizontal || vertical) {
@@ -106,8 +106,8 @@ class UIController {
     constructor(gameLogic, aiPlayer) {
         this.gameLogic = gameLogic;
         this.aiPlayer = aiPlayer;
-        this.board = document.querySelector('.board');
-        this.symbolSelector = document.querySelector('.symbol-selector-container');
+        this.board = document.querySelector(".board");
+        this.symbolSelector = document.querySelector(".symbol-selector-container");
         this.results = document.querySelector(".results");
 
         this.playerSymbol = null;
@@ -203,15 +203,21 @@ class UIController {
     }
 
     checkGameEnd() {
+        console.log("Check game end");
+
         if (!this.gameLogic.state.isGameOver) return;
 
         const resultText = document.querySelector(".results p");
 
         if (this.gameLogic.state.winner) {
             const winnerText = this.gameLogic.state.winner === this.playerSymbol ? "You Won!" : "Computer Won!";
+            
+            this.results.classList.remove("disabled");
 
             resultText.textContent = winnerText;
+
         } else if (this.gameLogic.state.isDraw) {
+            this.results.classList.remove("disabled");
             resultText.textContent = "Draw!";
         }
     }
