@@ -69,8 +69,8 @@ class GameLogic {
         return this.state.board.every(cell => cell !== "");
     }
 
-    updateGameStatus(lastMoveSymbol){
-        if (this.checkWin(lastMoveSymbol)){
+    updateGameStatus(lastMoveSymbol) {
+        if (this.checkWin(lastMoveSymbol)) {
             this.state.isGameOver = true;
             this.state.winner = lastMoveSymbol;
             return;
@@ -79,6 +79,26 @@ class GameLogic {
             this.state.isGameOver = true;
             this.state.isDraw = true;
         }
+    }
+}
+
+class AIPlayer {
+    constructor(gameLogic, symbol) {
+        this.gameLogic = gameLogic;
+        this.symbol = symbol;
+    }
+
+    makeMove() {
+        const board = this.gameLogic.state.board;
+        const availableMoves = board.reduce((moves, cell, index) => {
+            if (cell === "") moves.push(index);
+            return moves;
+        }, []);
+        
+        if (availableMoves.length === 0) return null;
+
+        const moveIndex = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+        return moveIndex;
     }
 }
 
