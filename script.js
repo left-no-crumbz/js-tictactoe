@@ -226,3 +226,10 @@ class UIController {
         }
     }
 }
+
+const initGame = (() => {
+    const gameState = new GameState();
+    const gameLogic = new GameLogic(gameState);
+    const aiPlayer = new AIPlayer(gameLogic, null);
+    new UIController(gameLogic, aiPlayer);
+})();
