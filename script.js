@@ -145,17 +145,102 @@ class AIPlayer {
         this.symbol = symbol;
     }
 
-    aiMakeMove() {
+    isTerminal() {
+        const playerSymbol = this.symbol === "X" ? "O" : "X";
+
+        return this.gameLogic.checkDraw() || this.gameLogic.checkWin(this.symbol) || this.gameLogic.checkWin(playerSymbol);
+    }
+
+    getScore() {
+        const playerSymbol = this.symbol === "X" ? "O" : "X";
+
+        if (this.gameLogic.checkWin(this.symbol)) {
+            return 1;
+        }
+        
+        if (this.gameLogic.checkWin(playerSymbol)) {
+            return -1
+        }
+        
+        if (this.gameLogic.checkDraw()) {
+            return 0;
+        }
+    }
+
+    getAvailableMoves() {
         const board = this.gameLogic.state.board;
         const availableMoves = board.reduce((moves, cell, index) => {
             if (cell === "") moves.push(index);
             return moves;
         }, []);
+
+        return availableMoves;
+    }
+
+    minimax(board, depth, isMaximizer) {
+        const playerSymbol = this.symbol === "X" ? "O" : "X";
+
+        const score = this.getScore();
+
+        if (this.isTerminal()) return score;
+
+        if (isMaximizer) {
+            let bestScore = Number.NEGATIVE_INFINITY;
+
+            const availableMoves = this.getAvailableMoves();
+            
+            for (const index of availableMoves) {
+                board[index] = this.symbol;
+
+                const score = this.minimax(board, depth + 1, false);
+
+                board[index] = "";
+                bestScore = Math.max(score, bestScore);
+            }
+            return bestScore;
+
+        }
+
+        let bestScore = Number.POSITIVE_INFINITY;
+        const availableMoves = this.getAvailableMoves();
+        
+        for (const index of availableMoves) {
+            board[index] = playerSymbol;
+
+            const score = this.minimax(board, depth + 1, true);
+
+            board[index] = "";
+            bestScore = Math.min(score, bestScore);
+        }
+        return bestScore;
+    }
+
+
+    aiMakeMove() {
+        const board = this.gameLogic.state.board;
+        let bestMove;
+        let bestScore = Number.NEGATIVE_INFINITY;
+
+        const availableMoves = this.getAvailableMoves();
         
         if (availableMoves.length === 0) return null;
 
-        const moveIndex = availableMoves[Math.floor(Math.random() * availableMoves.length)];
-        return moveIndex;
+
+        for (const index of availableMoves) {
+
+            board[index] = this.symbol;
+
+            const score = this.minimax(board, 0, false);
+
+            board[index] = "";
+
+            if (score > bestScore) {
+                bestScore = score
+                bestMove = index;
+            }
+        }
+
+        return bestMove;
     }
 }
 
