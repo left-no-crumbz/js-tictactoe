@@ -139,9 +139,6 @@ class GameLogic {
     }
 }
 
-// TODO: implement alpha-beta pruning
-// TODO: use a board copy instead of directly accessing the board"
-// TODO: refactor minimax
 
 class AIPlayer {
     constructor(gameLogic, symbol) {
@@ -178,11 +175,9 @@ class AIPlayer {
         return availableMoves;
     }
 
-
     minimax(board, depth, alphaArg, betaArg, isMaximizer) {
         let alpha = alphaArg;
         let beta = betaArg;
-
 
         const score = this.getScore();
 
@@ -203,8 +198,6 @@ class AIPlayer {
 
                 board[index] = "";
                 
-                console.log(`Prune: ${beta <= alpha}`);
-
                 if (beta <= alpha) break;
 
             }
@@ -226,8 +219,6 @@ class AIPlayer {
 
             board[index] = "";
             
-            console.log(`Prune: ${beta <= alpha}`);
-
             if (beta <= alpha) break;
             
         }
@@ -237,6 +228,7 @@ class AIPlayer {
 
     aiMakeMove() {
         const board = this.gameLogic.state.board;
+
         let bestMove;
         let bestScore = Number.NEGATIVE_INFINITY;
 
