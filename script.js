@@ -143,22 +143,19 @@ class AIPlayer {
     constructor(gameLogic, symbol) {
         this.gameLogic = gameLogic;
         this.symbol = symbol;
+        this.playerSymbol = this.symbol === "X" ? "O" : "X";
     }
 
     isTerminal() {
-        const playerSymbol = this.symbol === "X" ? "O" : "X";
-
-        return this.gameLogic.checkDraw() || this.gameLogic.checkWin(this.symbol) || this.gameLogic.checkWin(playerSymbol);
+        return this.gameLogic.checkDraw() || this.gameLogic.checkWin(this.symbol) || this.gameLogic.checkWin(this.playerSymbol);
     }
 
     getScore() {
-        const playerSymbol = this.symbol === "X" ? "O" : "X";
-
         if (this.gameLogic.checkWin(this.symbol)) {
             return 1;
         }
         
-        if (this.gameLogic.checkWin(playerSymbol)) {
+        if (this.gameLogic.checkWin(this.playerSymbol)) {
             return -1
         }
         
@@ -177,9 +174,8 @@ class AIPlayer {
         return availableMoves;
     }
 
-    minimax(board, depth, isMaximizer) {
-        const playerSymbol = this.symbol === "X" ? "O" : "X";
 
+    minimax(board, depth, isMaximizer) {
         const score = this.getScore();
 
         if (this.isTerminal()) return score;
@@ -205,7 +201,7 @@ class AIPlayer {
         const availableMoves = this.getAvailableMoves();
         
         for (const index of availableMoves) {
-            board[index] = playerSymbol;
+            board[index] = this.playerSymbol;
 
             const score = this.minimax(board, depth + 1, true);
 
