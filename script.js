@@ -139,6 +139,10 @@ class GameLogic {
     }
 }
 
+// TODO: implement alpha-beta pruning
+// TODO: use a board copy instead of directly accessing the board"
+// TODO: refactor minimax
+
 class AIPlayer {
     constructor(gameLogic, symbol) {
         this.gameLogic = gameLogic;
@@ -175,40 +179,59 @@ class AIPlayer {
     }
 
 
-    minimax(board, depth, isMaximizer) {
+    minimax(board, depth, alphaArg, betaArg, isMaximizer) {
+        let alpha = alphaArg;
+        let beta = betaArg;
+
+
         const score = this.getScore();
 
         if (this.isTerminal()) return score;
 
         if (isMaximizer) {
-            let bestScore = Number.NEGATIVE_INFINITY;
+            let maxEval = Number.NEGATIVE_INFINITY;
 
             const availableMoves = this.getAvailableMoves();
             
             for (const index of availableMoves) {
                 board[index] = this.symbol;
 
-                const score = this.minimax(board, depth + 1, false);
+                const score = this.minimax(board, depth + 1, alpha, beta, false);
+                maxEval = Math.max(score, maxEval);
+
+                alpha = Math.max(alpha, score);
 
                 board[index] = "";
-                bestScore = Math.max(score, bestScore);
+                
+                console.log(`Prune: ${beta <= alpha}`);
+
+                if (beta <= alpha) break;
+
             }
-            return bestScore;
+            return maxEval;
 
         }
 
-        let bestScore = Number.POSITIVE_INFINITY;
+        let minEval = Number.POSITIVE_INFINITY;
         const availableMoves = this.getAvailableMoves();
         
         for (const index of availableMoves) {
             board[index] = this.playerSymbol;
 
-            const score = this.minimax(board, depth + 1, true);
+            const score = this.minimax(board, depth + 1, alpha, beta, true);
+
+            beta = Math.min(beta, score);
+
+            minEval = Math.min(score, minEval);
 
             board[index] = "";
-            bestScore = Math.min(score, bestScore);
+            
+            console.log(`Prune: ${beta <= alpha}`);
+
+            if (beta <= alpha) break;
+            
         }
-        return bestScore;
+        return minEval;
     }
 
 
@@ -216,6 +239,11 @@ class AIPlayer {
         const board = this.gameLogic.state.board;
         let bestMove;
         let bestScore = Number.NEGATIVE_INFINITY;
+
+        const alpha = Number.NEGATIVE_INFINITY;
+
+        const beta = Number.POSITIVE_INFINITY;
+
 
         const availableMoves = this.getAvailableMoves();
         
@@ -226,7 +254,7 @@ class AIPlayer {
 
             board[index] = this.symbol;
 
-            const score = this.minimax(board, 0, false);
+            const score = this.minimax(board, 0, alpha, beta, false);
 
             board[index] = "";
 
