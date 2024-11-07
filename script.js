@@ -31,7 +31,50 @@ class GameLogic {
         return true;
     }
 
-    checkWin(symbol) {
+    checkWin(symbol, state = null) {
+
+        if (state != null) {
+            // check the left diagonal
+            const leftDiagonal = state[0] === symbol && state[4] === symbol && state[8] === symbol;
+            
+            if (leftDiagonal) {
+                this.winningPattern = [0, 4, 8];
+                return true;
+            }
+
+            // check the right diagonal
+            const rightDiagonal = state[2] === symbol && state[4] === symbol && state[6] === symbol;
+            
+            if (rightDiagonal) {
+                this.winningPattern = [2, 4, 6];
+                return true;
+            }
+
+            let horizontal;
+            let vertical;
+            
+            for (let index = 0; index < 3; index++) {
+                const idx = index * 3;
+                // check the horizontal
+                horizontal = state[idx] === symbol && state[idx + 1] === symbol && state[idx + 2] === symbol;
+                
+                if (horizontal) {
+                    this.winningPattern = [idx, idx + 1, idx + 2];
+                    return true;
+                }
+
+                // check the vertical
+                vertical = state[index] === symbol && state[index + 3] === symbol && state[index + 6] === symbol;
+                
+                if (vertical) {
+                    this.winningPattern = [index, index + 3, index + 6];
+                    return true;                
+                }
+            }
+
+            return false;
+        }
+
         // check the left diagonal
         const leftDiagonal = this.state.board[0] === symbol && this.state.board[4] === symbol && this.state.board[8] === symbol;
         
@@ -73,17 +116,23 @@ class GameLogic {
         return false;
     }
 
-    checkDraw() {
+    checkDraw(state = null) {
+
+        if (state != null) {
+            return state.every(cell => cell !== "");
+        }
+
         return this.state.board.every(cell => cell !== "");
     }
 
     updateGameStatus(lastMoveSymbol) {
-        if (this.checkWin(lastMoveSymbol)) {
+        if (this.checkWin(lastMoveSymbol, this.state.board)) {
             this.state.isGameOver = true;
             this.state.winner = lastMoveSymbol;
             return;
         }
-        if (this.checkDraw()) {
+
+        if (this.checkDraw(this.state.board)) {
             this.state.isGameOver = true;
             this.state.isDraw = true;
         }
